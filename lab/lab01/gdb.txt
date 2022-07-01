@@ -1,0 +1,9 @@
+1. run argument
+2. b line
+3. n
+4. s 
+5. c
+6. p expr
+7. display expr
+8. dispaly
+9. q
