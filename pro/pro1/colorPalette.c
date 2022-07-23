@@ -20,6 +20,37 @@ void usage(char* argv[])
 int P3colorpalette(char* colorfile, int width, int heightpercolor, char* outputfile)
 {
 	//YOUR CODE HERE
+	int *colorcount = (int*)malloc(sizeof(int));
+	*colorcount = 0;
+	uint8_t** color = FileToColorMap(colorfile, colorcount);
+	FILE* out = fopen(outputfile, "w");
+	if(color == NULL || width < 1 || heightpercolor < 1 || out == NULL){
+		for(int i = 0; i < *colorcount; i++){
+			free(color[i]);
+		}
+		free(color);
+		return 1;
+	}
+	fprintf(out, "P3 %d %d %d\n", width, heightpercolor*(*colorcount), 255);
+	for(int i = 0; i < *colorcount; i++){
+		for(int j = 0; j < heightpercolor; j++){
+			for(int k = 0; k < width; k++){
+				if(k == width-1){
+					fprintf(out, "%d %d %d", color[i][0], color[i][1], color[i][2]);
+				}
+				else{
+					fprintf(out, "%d %d %d ", color[i][0], color[i][1], color[i][2]);
+				}
+			}
+			fprintf(out, "\n");
+		}
+	}
+	fclose(out);
+	for(int i = 0; i < *colorcount; i++){
+			free(color[i]);
+	}
+	free(colorcount);
+	free(color);
 	return 0;
 }
 
@@ -27,6 +58,31 @@ int P3colorpalette(char* colorfile, int width, int heightpercolor, char* outputf
 int P6colorpalette(char* colorfile, int width, int heightpercolor, char* outputfile)
 {
 	//YOUR CODE HERE
+	int *colorcount = (int*)malloc(sizeof(int));
+	*colorcount = 0;
+	uint8_t** color = FileToColorMap(colorfile, colorcount);
+	FILE* out = fopen(outputfile, "w");
+	if(color == NULL || width < 1 || heightpercolor < 1 || out == NULL){
+		for(int i = 0; i < *colorcount; i++){
+			free(color[i]);
+		}
+		free(color);
+		return 1;
+	}
+	fprintf(out, "P6 %d %d %d\n", width, heightpercolor*(*colorcount), 255);
+	for(int i = 0; i < *colorcount; i++){
+		for(int j = 0; j < heightpercolor; j++){
+			for(int k = 0; k < width; k++){
+				fwrite(color[i], 1, 3, out);
+			}
+		}
+	}
+	for(int i = 0; i < *colorcount; i++){
+			free(color[i]);
+	}
+	free(colorcount);
+	fclose(out);
+	free(color);
 	return 0;
 }
 
