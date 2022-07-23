@@ -29,6 +29,10 @@ As another example, if initialscale=10, finalscale=0.01, framecount=5, then your
 */
 void MandelMovie(double threshold, u_int64_t max_iterations, ComplexNumber* center, double initialscale, double finalscale, int framecount, u_int64_t resolution, u_int64_t ** output){
     //YOUR CODE HERE
+	double bi = pow(finalscale/initialscale, 1.0/(framecount-2));
+	for(int i = 0; i < framecount; i++){ 
+		Mandelbrot(threshold, max_iterations, center, initialscale*pow(bi,i-0), resolution, output[i]);
+	}
 }
 
 /**************
@@ -48,9 +52,34 @@ int main(int argc, char* argv[])
 	*/
 
 	//YOUR CODE HERE 
+	if(argc != 11){
+		printf("%s, wrong number of auguments, expecting 11", argv[0]);
+		printUsage(argv);
+		return 1;
+	}
+	double threshold, center_real, center_imaginary, initialscale, finalscale;
+	u_int64_t max_iterations, resolution;
+	int framecount;
+	char buffer[100];
 
+	threshold = atof(argv[1]);
+	max_iterations = (u_int64_t)atoi(argv[2]);
+	ComplexNumber* center = newComplexNumber(atof(argv[3]), atof(argv[4]));
+	initialscale = atof(argv[5]);
+	finalscale = atof(argv[6]);
+	framecount = atoi(argv[7]);
+	resolution = (u_int64_t)atoi(argv[8]);
+	if(threshold <= 0 || max_iterations <= 0 || initialscale <= 0 || finalscale <= 0 ||
+		(framecount <=0 || framecount > 10000) || resolution < 0){
+		printf("The threshold, max_iterations, scale should be more than 0\nframe should between 0 and 10000\
+				resolution should grater or equle than 0");
+		printUsage(argv);
+		return 1;
+	}
+	int *colorcount = (int*)malloc(sizeof(int));
+	u_int8_t **colormap = FileToColorMap(argv[10], colorcount);
 
-
+	int len = 2 * resolution + 1;
 
 	//STEP 2: Run MandelMovie on the correct arguments.
 	/*
@@ -59,7 +88,18 @@ int main(int argc, char* argv[])
 	*/
 
 	//YOUR CODE HERE 
-
+	u_int64_t** output = (u_int64_t**)malloc(sizeof(u_int64_t*) * framecount);
+	if(output == NULL){
+		printf("unable to allocate %lu bytes space\n", sizeof(u_int64_t*)*framecount);
+	}
+	for(int i = 0; i < framecount; i++){
+		output[i] = (u_int64_t*)malloc(sizeof(u_int64_t)*len*len);
+		if(output[i] == NULL){
+			printf("Unable to allocate enough space!");
+			return 1;
+		}
+	}
+	MandelMovie(threshold, max_iterations, center, initialscale, finalscale, framecount, resolution, output);
 
 
 	//STEP 3: Output the results of MandelMovie to .ppm files.
@@ -71,7 +111,21 @@ int main(int argc, char* argv[])
 	*/
 
 	//YOUR CODE HERE 
-
+	for(int i = 0; i < framecount; i++){
+		char filepath[30];
+		sprintf(filepath, "%s/frame%05d.ppm" ,argv[9], i);
+		FILE* outfile = fopen(filepath, "w");
+		fprintf(outfile, "P6 %d %d %d\n", 2*resolution+1, 2*resolution+1, 255);
+		for(int m = 0; m < pow(2*resolution+1, 2); m++){
+			if(output[i][m] == 0)
+				fprintf(outfile, "%c%c%c", 0,0,0);
+			else{
+				int temp = (output[i][m]-1)%*colorcount;
+				fwrite(colormap[temp], 1, 3, outfile);
+			}
+		}
+		fclose(outfile);
+	}
 
 
 
@@ -80,11 +134,17 @@ int main(int argc, char* argv[])
 	Make sure there's no memory leak.
 	*/
 	//YOUR CODE HERE 
+	free(center);
+	for(int i = 0; i < *colorcount; i++){
+		free(colormap[i]);
+	}
+	free(colormap);
+	free(colorcount);
 
-
-
-
-
+	for(int i = 0; i < framecount; i++){
+		free(output[i]);
+	}
+	free(output);
 	return 0;
 }
 
