@@ -22,3 +22,12 @@ main:
 
 factorial:
     # YOUR CODE HERE
+    add t0, a0, x0
+    addi a0, x0, 1
+Loop:
+    beq t0, x0, Exit
+    mul a0, t0, a0
+    addi t0, t0, -1
+    jal x0, Loop
+Exit:
+    jr ra
