@@ -35,50 +35,47 @@ main:
     # Load pretrained m0
     addi a0, x0, 4
     jal ra, malloc
-    mv a1, a0
+    mv s3, a0
 
     addi a0, x0, 4
     jal ra, malloc
+    mv s4, a0
     mv a2, a0
+    mv a1, s3
 
-    lw a0, 0(s1)
+    lw a0, 4(s1)
     jal ra, read_matrix
     mv s2, a0   # s2 is the matrix of m0
-    mv s3, a1
-    mv s4, a2
 
     # Load pretrained m1
     addi a0, x0, 4
     jal ra, malloc
-    mv a1, a0
+    mv s6, a0
 
     addi a0, x0, 4
     jal ra, malloc
+    mv a7, a0
     mv a2, a0
+    mv a1, s6
 
-    lw a0, 4(s1)
+    lw a0, 8(s1)
     jal ra, read_matrix
     mv s5, a0   # s5 is the matrix of m1
-    mv s6, a1
-    mv s7, a2
 
     # Load input matrix
     addi a0, x0, 4
     jal ra, malloc
-    mv a1, a0
+    mv s8, a0
 
     addi a0, x0, 4
     jal ra, malloc
-    mv a2, a0
+    mv s9, a0
+    mv a2, s9
+    mv a1, s8
 
-    lw a0, 8(s1)
+    lw a0, 12(s1)
     jal ra, read_matrix
     mv s8, a0   # s8 is the matrix of input
-    mv s9, a1
-    mv s10, a2
-
-
-
 
 
     # =====================================
