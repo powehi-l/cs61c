@@ -65,7 +65,7 @@ inner_loop_start:
     add a4, s5, x0
     jal ra, dot
 
-    mul t0, s2, s7
+    mul t0, s5, s7
     add t0, t0, s8
     slli t0, t0, 2
     add t0, t0, s6
