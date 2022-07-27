@@ -54,7 +54,7 @@ main:
 
     addi a0, x0, 4
     jal ra, malloc
-    mv a7, a0
+    mv s7, a0
     mv a2, a0
     mv a1, s6
 
@@ -65,13 +65,13 @@ main:
     # Load input matrix
     addi a0, x0, 4
     jal ra, malloc
-    mv s8, a0
+    mv s9, a0
 
     addi a0, x0, 4
     jal ra, malloc
-    mv s9, a0
-    mv a2, s9
-    mv a1, s8
+    mv s10, a0
+    mv a1, s9
+    mv a2, s10
 
     lw a0, 12(s1)
     jal ra, read_matrix
@@ -85,52 +85,60 @@ main:
     # 2. NONLINEAR LAYER: ReLU(m0 * input)
     # 3. LINEAR LAYER:    m1 * ReLU(m0 * input)
     # malloc space for temp
-    mul t0, s3, s10
+    lw t0, 0(s3)
+    lw t1, 0(s10)
+    mul t0, t0, t1
     slli a0, t0, 2
     jal ra, malloc
     mv s11, a0
 
     # m0 * input
     mv a0, s2
-    mv a1, s3
-    mv a2, s4
+    lw a1, 0(s3)
+    lw a2, 0(s4)
     mv a3, s8
-    mv a4, s9
-    mv a5, s10
+    lw a4, 0(s9)
+    lw a5, 0(s10)
     mv a6, s11
     jal ra, matmul
 
     # relu temp
     mv a0, s11
-    mul a1, s3, s10
+    lw t0, 0(s3)
+    lw t1, 0(s10)
+    mul a1, t0, t1
     jal ra, relu
     # temp - s8, s9, s10
     mv s8, s11
     mv s9, s3
 
-    mul t0, s6, s10
+    lw t0, 0(s6)
+    lw t1, 0(s10)
+    mul t0, t0, t1
     slli a0, t0, 2
     jal ra, malloc
     mv s2, a0
+    mv s3, s6
     mv s4, s10
 
     # m1 * temp
     mv a0, s5
-    mv a1, s6
-    mv a2, s7
+    lw a1, 0(s6)
+    lw a2, 0(s7)
     mv a3, s8
-    mv a4, s9
-    mv s5, s10
-    mv s6, s2
+    lw a4, 0(s9)
+    lw a5, 0(s10)
+    mv a6, s2
+    jal ra, matmul
 
     # =====================================
     # WRITE OUTPUT
     # =====================================
     # Write output matrix
-    lw a0 16(s0) # Load pointer to output filename
+    lw a0 16(s1) # Load pointer to output filename
     mv a1, s2
-    mv a2, s6
-    mv a3, s10
+    lw a2, 0(s3)
+    lw a3, 0(s4)
     jal ra, write_matrix
 
     # =====================================
@@ -138,7 +146,9 @@ main:
     # =====================================
     # Call argmax
     mv a0, s2
-    mul a1, s6, s10
+    lw t0, 0(s3)
+    lw t1, 0(s4)
+    mul a1, t0, t1
     jal ra, argmax
 
 
